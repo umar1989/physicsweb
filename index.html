@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en" ng-app="app">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bulma + AngularJS Template</title>
+
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <!-- Icons (optional) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2Pkf6UNmRe1Zf+Yk8C+AAZ1V9Xn/tT1C7gY6QXnS4XrVbJ2Yx4Y7M1YxKA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+      /* Minimal tweaks for a clean layout */
+      html, body { height: 100%; }
+      .app-container { min-height: calc(100vh - 6rem); } /* account for hero + footer */
+      .menu.is-sticky { position: sticky; top: 1rem; }
+      pre.code { background: #0f172a; color: #e2e8f0; padding: 1rem; border-radius: 0.75rem; overflow:auto; }
+    </style>
+  </head>
+
+  <body ng-controller="MainCtrl as $main" class="has-background-light">
+    <!-- Top hero / header -->
+    <section class="hero is-primary">
+      <div class="hero-body">
+        <div class="container">
+          <nav class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <h1 class="title is-3">
+                  <span class="icon"><i class="fa-solid fa-cubes"></i></span>
+                  <span>Bulma × AngularJS</span>
+                </h1>
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="level-item">
+                <div class="field has-addons">
+                  <p class="control has-icons-left">
+                    <input class="input" type="search" placeholder="Quick filter…" ng-model="$main.q">
+                    <span class="icon is-left"><i class="fa-solid fa-magnifying-glass"></i></span>
+                  </p>
+                  <p class="control">
+                    <button class="button is-dark" ng-click="$main.clearFilter()">Clear</button>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navbar -->
+    <nav class="navbar is-white" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="#/">
+          <strong>App</strong>
+        </a>
+
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navMenu">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+
+      <div id="navMenu" class="navbar-menu">
+        <div class="navbar-start">
+          <a class="navbar-item" ng-class="{ 'is-active': $main.isActive('/') }" href="#/">Home</a>
+          <a class="navbar-item" ng-class="{ 'is-active': $main.isActive('/todos') }" href="#/todos">Todos</a>
+          <a class="navbar-item" ng-class="{ 'is-active': $main.isActive('/about') }" href="#/about">About</a>
+        </div>
+        <div class="navbar-end">
+          <div class="navbar-item">
+            <div class="buttons">
+              <button class="button is-primary" ng-click="$main.showModal=true">
+                <span class="icon"><i class="fa-solid fa-plus"></i></span>
+                <span>Quick Add</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Layout -->
+    <div class="app-container section">
+      <div class="container">
+        <div class="columns is-variable is-6">
+          <!-- Sidebar -->
+          <aside class="column is-3">
+            <div class="menu is-sticky">
+              <p class="menu-label">General</p>
+              <ul class="menu-list">
+                <li><a href="#/" ng-class="{ 'is-active': $main.isActive('/') }">Dashboard</a></li>
+                <li><a href="#/todos" ng-class="{ 'is-active': $main.isActive('/todos') }">Todos</a></li>
+                <li><a href="#/about" ng-class="{ 'is-active': $main.isActive('/about') }">About</a></li>
+              </ul>
+              <p class="menu-label">Examples</p>
+              <ul class="menu-list">
+                <li><a ng-click="$main.toast('Hello from Bulma × AngularJS!')">Show toast</a></li>
+                <li><a ng-click="$main.populate()">Populate sample todos</a></li>
+                <li><a ng-click="$main.reset()">Reset app</a></li>
+              </ul>
+            </div>
+          </aside>
+
+          <!-- Content -->
+          <main class="column">
+            <div ng-view></div>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          <strong>Template</strong> by You — built with Bulma and AngularJS 1.x.
+        </p>
+      </div>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal" ng-class="{ 'is-active': $main.showModal }">
+      <div class="modal-background" ng-click="$main.showModal=false"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Quick Add Todo</p>
+          <button class="delete" aria-label="close" ng-click="$main.showModal=false"></button>
+        </header>
+        <section class="modal-card-body">
+          <form ng-submit="$main.quickAdd(quickTitle)" name="quickForm">
+            <div class="field">
+              <label class="label">Title</label>
+              <div class="control">
+                <input class="input" type="text" ng-model="quickTitle" placeholder="e.g., Prepare physics notes" required focus-on>
+              </div>
+              <p class="help">Press Enter to add.</p>
+            </div>
+          </form>
+        </section>
+        <footer class="modal-card-foot">
+          <button class="button is-primary" ng-click="$main.quickAdd(quickTitle)">Add</button>
+          <button class="button" ng-click="$main.showModal=false">Cancel</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- AngularJS & ngRoute -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular-route.min.js"></script>
+
+    <script>
+      // --- App Module ---
+      angular.module('app', ['ngRoute'])
+        .config(function($routeProvider, $locationProvider){
+          $routeProvider
+            .when('/', {
+              template: document.getElementById('tpl-home').innerHTML,
+              controller: 'HomeCtrl',
+              controllerAs: '$'
+            })
+            .when('/todos', {
+              template: document.getElementById('tpl-todos').innerHTML,
+              controller: 'TodoCtrl',
+              controllerAs: '$'
+            })
+            .when('/about', {
+              template: document.getElementById('tpl-about').innerHTML,
+              controller: 'AboutCtrl',
+              controllerAs: '$'
+            })
+            .otherwise({ redirectTo: '/' });
+          // keep hashbang routing (no server config needed)
+        })
+
+        // --- Simple LocalStorage-backed Store ---
+        .factory('TodoStore', function($window){
+          const KEY = 'bulmaNg.todos';
+          const api = {
+            all() { return JSON.parse($window.localStorage.getItem(KEY) || '[]'); },
+            save(list) { $window.localStorage.setItem(KEY, JSON.stringify(list)); },
+            reset() { $window.localStorage.removeItem(KEY); }
+          };
+          return api;
+        })
+
+        // --- Filters ---
+        .filter('capitalize', function(){
+          return function(input){
+            if (!input) return '';
+            return input.charAt(0).toUpperCase() + input.slice(1);
+          };
+        })
+
+        // --- Directive: autofocus on mount ---
+        .directive('focusOn', function($timeout){
+          return {
+            restrict: 'A',
+            link(scope, el){ $timeout(() => el[0].focus(), 0); }
+          };
+        })
+
+        // --- Main Controller ---
+        .controller('MainCtrl', function($location, TodoStore){
+          const vm = this;
+          vm.q = '';
+          vm.showModal = false;
+          vm.isActive = (path) => $location.path() === path;
+          vm.clearFilter = () => vm.q = '';
+
+          vm.toast = (msg) => {
+            // lightweight toast using Bulma notification
+            const n = document.createElement('div');
+            n.className = 'notification is-primary';
+            n.style.position = 'fixed';
+            n.style.right = '1rem';
+            n.style.bottom = '1rem';
+            n.style.zIndex = '50';
+            n.textContent = msg || 'Hello!';
+            document.body.appendChild(n);
+            setTimeout(() => n.remove(), 2200);
+          };
+
+          vm.populate = () => {
+            const seed = [
+              { title: 'Revise circular motion', done: false },
+              { title: 'Prepare LaTeX MCQs', done: true },
+              { title: 'Push notes to GitHub', done: false }
+            ];
+            localStorage.setItem('bulmaNg.todos', JSON.stringify(seed));
+            vm.toast('Sample todos added');
+          };
+
+          vm.reset = () => { TodoStore.reset(); vm.toast('App reset'); };
+
+          vm.quickAdd = (title) => {
+            if (!title) return;
+            const list = TodoStore.all();
+            list.push({ title, done: false });
+            TodoStore.save(list);
+            vm.showModal = false;
+          };
+        })
+
+        // --- Route Controllers ---
+        .controller('HomeCtrl', function(){
+          const $ = this;
+          $.now = new Date();
+          $.features = [
+            { icon: 'fa-bolt', title: 'Fast scaffold', text: 'Single-file template using Bulma and AngularJS.' },
+            { icon: 'fa-list-check', title: 'Todos demo', text: 'LocalStorage-backed basic CRUD.' },
+            { icon: 'fa-wand-magic-sparkles', title: 'Utilities', text: 'Filters, directives, simple toast.' }
+          ];
+        })
+        .controller('AboutCtrl', function(){
+          const $ = this;
+          $.stack = [
+            { name: 'Bulma', link: 'https://bulma.io' },
+            { name: 'AngularJS 1.x', link: 'https://angularjs.org' }
+          ];
+        })
+        .controller('TodoCtrl', function(TodoStore){
+          const $ = this;
+          $.newTitle = '';
+          $.list = TodoStore.all();
+
+          $.add = function(){
+            if(!$.newTitle) return;
+            $.list.push({ title: $.newTitle, done: false });
+            $.newTitle = '';
+            TodoStore.save($.list);
+          };
+
+          $.toggle = function(item){ item.done = !item.done; TodoStore.save($.list); };
+
+          $.remove = function(idx){ $.list.splice(idx, 1); TodoStore.save($.list); };
+
+          $.clearCompleted = function(){
+            $.list = $.list.filter(t => !t.done);
+            TodoStore.save($.list);
+          };
+        });
+
+      // Bulma navbar burger (vanilla JS)
+      document.addEventListener('DOMContentLoaded', () => {
+        const $burger = document.querySelector('.navbar-burger');
+        const $menu = document.getElementById($burger?.dataset.target || 'navMenu');
+        if ($burger && $menu) {
+          $burger.addEventListener('click', () => {
+            $burger.classList.toggle('is-active');
+            $menu.classList.toggle('is-active');
+          });
+        }
+      });
+    </script>
+
+    <!-- --- Inline Templates for ngRoute --- -->
+    <script type="text/ng-template" id="tpl-home">
+      <section class="section">
+        <div class="container">
+          <div class="box">
+            <h2 class="title is-4">Welcome</h2>
+            <p class="subtitle is-6">Now: {{$ctrl.now | date:'medium'}}</p>
+            <div class="columns is-multiline">
+              <div class="column is-4" ng-repeat="f in $ctrl.features">
+                <div class="card">
+                  <div class="card-content">
+                    <p class="title is-5">
+                      <span class="icon"><i class="fa-solid" ng-class="f.icon"></i></span>
+                      {{f.title}}
+                    </p>
+                    <p class="content">{{f.text}}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <article class="message is-info">
+            <div class="message-header">
+              <p>Tip</p>
+            </div>
+            <div class="message-body">
+              Use the sidebar to populate sample todos or reset the app. Try the <em>Quick Add</em> button in the navbar.
+            </div>
+          </article>
+
+          <div class="box">
+            <h3 class="title is-5">Code Snippet</h3>
+            <pre class="code"><code>&lt;div ng-view&gt;&lt;/div&gt; // Routed content goes here</code></pre>
+          </div>
+        </div>
+      </section>
+    </script>
+
+    <script type="text/ng-template" id="tpl-about">
+      <section class="section">
+        <div class="container">
+          <div class="content">
+            <h2 class="title is-4">About this template</h2>
+            <p>
+              This is a lightweight single-file starter that combines <strong>Bulma</strong> for styling and
+              <strong>AngularJS 1.x</strong> for a simple SPA with routing.
+            </p>
+            <ul>
+              <li ng-repeat="s in $ctrl.stack">{{s.name}}</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </script>
+
+    <script type="text/ng-template" id="tpl-todos">
+      <section class="section">
+        <div class="container">
+          <div class="box">
+            <div class="level">
+              <div class="level-left">
+                <h2 class="title is-4">Todos</h2>
+              </div>
+              <div class="level-right">
+                <button class="button is-light" ng-click="$ctrl.clearCompleted()">
+                  <span class="icon"><i class="fa-solid fa-broom"></i></span>
+                  <span>Clear completed</span>
+                </button>
+              </div>
+            </div>
+
+            <form ng-submit="$ctrl.add()" class="mb-4">
+              <div class="field has-addons">
+                <div class="control is-expanded">
+                  <input class="input" type="text" ng-model="$ctrl.newTitle" placeholder="Add a task…" required>
+                </div>
+                <div class="control">
+                  <button class="button is-primary" type="submit">
+                    <span class="icon"><i class="fa-solid fa-plus"></i></span>
+                    <span>Add</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <table class="table is-fullwidth is-striped is-hoverable">
+              <thead>
+                <tr>
+                  <th style="width:48px">Done</th>
+                  <th>Task</th>
+                  <th style="width:80px">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="t in $ctrl.list | filter:$parent.$main.q">
+                  <td>
+                    <label class="checkbox">
+                      <input type="checkbox" ng-checked="t.done" ng-click="$ctrl.toggle(t)">
+                    </label>
+                  </td>
+                  <td ng-class="{ 'has-text-grey-light': t.done }">
+                    <span ng-if="!t.done">{{t.title | capitalize}}</span>
+                    <span ng-if="t.done"><s>{{t.title | capitalize}}</s></span>
+                  </td>
+                  <td>
+                    <button class="button is-ghost is-small" title="Delete" ng-click="$ctrl.remove($index)">
+                      <span class="icon"><i class="fa-solid fa-trash"></i></span>
+                    </button>
+                  </td>
+                </tr>
+                <tr ng-if="!$ctrl.list.length">
+                  <td colspan="3" class="has-text-centered has-text-grey">No tasks yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </script>
+  </body>
+</html>
+
